@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - AI Task Scheduler</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1 class="auth-title">Create Account</h1>
+                <p class="auth-subtitle">Join our AI-powered task scheduling platform</p>
+            </div>
+            <form class="auth-form" id="signup-form">
+                <div class="auth-form-group">
+                    <label class="auth-label" for="name">Full Name</label>
+                    <input type="text" id="name" class="auth-input" required placeholder="Enter your full name">
+                </div>
+                <div class="auth-form-group">
+                    <label class="auth-label" for="email">Email</label>
+                    <input type="email" id="email" class="auth-input" required placeholder="Enter your email">
+                </div>
+                <div class="auth-form-group">
+                    <label class="auth-label" for="password">Password</label>
+                    <input type="password" id="password" class="auth-input" required placeholder="Create a password">
+                </div>
+                <div class="auth-form-group">
+                    <label class="auth-label" for="confirm-password">Confirm Password</label>
+                    <input type="password" id="confirm-password" class="auth-input" required placeholder="Confirm your password">
+                </div>
+                <button type="submit" class="auth-button">Sign Up</button>
+            </form>
+            <div class="auth-footer">
+                <p>Already have an account? <a href="login.html" class="auth-link">Login</a></p>
+            </div>
+        </div>
+    </div>
+    <script src="auth.js"></script>
+</body>
+</html> 
