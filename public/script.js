@@ -1,7 +1,6 @@
 class Task {
-    // Backend assigns _id, frontend uses it as id
     constructor(id, title, description, dueDate, dueTime, priority, category, completed = false, createdAt = new Date().toISOString()) {
-      this.id = id; // _id from MongoDB
+      this.id = id;
       this.title = title;
       this.description = description;
       this.dueDate = dueDate;
@@ -9,11 +8,10 @@ class Task {
       this.priority = priority;
       this.category = category;
       this.completed = completed;
-      this.createdAt = createdAt; // For sorting and report filtering
+      this.createdAt = createdAt;
     }
   }
 
-  // Main application class
   class TaskScheduler {
     constructor() {
       this.tasks = [];
@@ -21,31 +19,25 @@ class Task {
       this.currentFilter = 'all';
       this.searchTerm = '';
       this.currentMonth = new Date();
-      this.apiUrl = 'http://localhost:3000/api'; // Backend API URL
-      this.auth = window.auth; // Access global Auth instance
+      this.apiUrl = 'http://localhost:3000/api';
+      this.auth = window.auth;
 
-      // Check auth status first
       this.auth.checkAuthStatus();
 
-      // Initialize UI after basic checks
       this.initUI();
 
-      // Fetch tasks from backend instead of localStorage
       this.fetchTasks();
 
-      // Generate AI suggestions (still client-side for now)
       this.generateSuggestions();
 
-      this.updateUserName(); // Update user name on dashboard
+      this.updateUserName();
     }
 
-    // Helper to get JWT token from auth instance
     getAuthHeader() {
       const token = this.auth.getToken();
       return token ? { 'Authorization': `Bearer ${token}` } : {};
     }
 
-    // New: Fetch tasks from the backend
     async fetchTasks() {
         try {
             const response = await fetch(`${this.apiUrl}/tasks`, {
@@ -55,7 +47,7 @@ class Task {
             if (response.ok) {
                 const data = await response.json();
                 this.tasks = data.map(taskData => new Task(
-                    taskData._id, // MongoDB _id
+                    taskData._id,
                     taskData.title,
                     taskData.description,
                     taskData.dueDate,
@@ -65,9 +57,8 @@ class Task {
                     taskData.completed,
                     taskData.createdAt
                 ));
-                this.updateUI(); // Refresh UI with fetched tasks
+                this.updateUI();
             } else if (response.status === 401 || response.status === 403) {
-                // Token invalid or missing, redirect to login
                 this.auth.logout();
             } else {
                 console.error('Failed to fetch tasks:', response.statusText);
@@ -79,13 +70,7 @@ class Task {
         }
     }
 
-    // Existing load/save tasks methods will be replaced by API calls
-    // saveTasks() no longer saves to localStorage directly but makes API calls
-    // loadTasks() is replaced by fetchTasks()
-
-    // Initialize UI elements and event listeners
     initUI() {
-      // Tab switching
       const tabButtons = document.querySelectorAll('.tab-button');
       const tabContents = document.querySelectorAll('.tab-content');
 
@@ -93,11 +78,9 @@ class Task {
         button.addEventListener('click', () => {
           const tabName = button.dataset.tab;
 
-          // Update active tab button
           tabButtons.forEach(btn => btn.classList.remove('active'));
           button.classList.add('active');
 
-          // Show selected tab content
           tabContents.forEach(content => {
             content.classList.remove('active');
             if (content.id === `${tabName}-view`) {
@@ -105,14 +88,12 @@ class Task {
             }
           });
 
-          // Update calendar if calendar tab is selected
           if (tabName === 'calendar') {
             this.renderCalendar();
           }
         });
       });
 
-      // Task form modal
       const addTaskBtn = document.getElementById('add-task-btn');
       const taskFormModal = document.getElementById('task-form-modal');
       const closeModal = document.getElementById('close-modal');
@@ -136,29 +117,24 @@ class Task {
         this.handleTaskFormSubmit();
       });
 
-      // Filter buttons
       const filterButtons = document.querySelectorAll('.filter-button');
       filterButtons.forEach(button => {
         button.addEventListener('click', () => {
           this.currentFilter = button.dataset.filter;
 
-          // Update active filter button
           filterButtons.forEach(btn => btn.classList.remove('active'));
           button.classList.add('active');
 
-          // Refresh task list
           this.renderTasks();
         });
       });
 
-      // Search input
       const searchInput = document.getElementById('search-input');
       searchInput.addEventListener('input', (e) => {
         this.searchTerm = e.target.value.toLowerCase();
         this.renderTasks();
       });
 
-      // Calendar navigation
       const prevMonthBtn = document.getElementById('prev-month');
       const nextMonthBtn = document.getElementById('next-month');
 
@@ -172,21 +148,17 @@ class Task {
         this.renderCalendar();
       });
 
-      // Refresh suggestions button
       const refreshSuggestionsBtn = document.getElementById('refresh-suggestions');
       refreshSuggestionsBtn.addEventListener('click', () => {
         this.generateSuggestions();
       });
 
-      // Set default due date to today
       const dueDateInput = document.getElementById('due-date');
       dueDateInput.value = this.formatDateForInput(new Date());
 
-      // Initial render (will be updated by fetchTasks later)
       this.renderTasks();
     }
 
-    // New: Update user name displayed on the dashboard
     updateUserName() {
         const userNameSpan = document.getElementById('user-name');
         const userData = localStorage.getItem('user');
@@ -201,32 +173,26 @@ class Task {
         }
     }
 
-    // Open task form modal
     openTaskForm(task = null) {
       const modal = document.getElementById('task-form-modal');
       const modalTitle = document.getElementById('modal-title');
       const form = document.getElementById('task-form');
       const submitButton = form.querySelector('button[type="submit"]');
 
-      form.reset(); // Reset form
+      form.reset();
 
-      // Set default due date to today if adding new task
       const dueDateInput = document.getElementById('due-date');
       if (!task) {
           dueDateInput.value = this.formatDateForInput(new Date());
       }
 
-
-      // Set default priority to Medium
       document.getElementById('priority-medium').checked = true;
 
       if (task) {
-        // Edit existing task
         this.currentEditingTask = task;
         modalTitle.textContent = 'Edit Task';
         submitButton.textContent = 'Update Task';
 
-        // Fill form with task data
         document.getElementById('title').value = task.title;
         document.getElementById('description').value = task.description;
         document.getElementById('due-date').value = task.dueDate;
@@ -235,7 +201,6 @@ class Task {
         if (priorityRadio) priorityRadio.checked = true;
         document.getElementById('category').value = task.category || '';
       } else {
-        // Add new task
         this.currentEditingTask = null;
         modalTitle.textContent = 'Add New Task';
         submitButton.textContent = 'Add Task';
@@ -244,14 +209,12 @@ class Task {
       modal.classList.add('active');
     }
 
-    // Close task form modal
     closeTaskForm() {
       const modal = document.getElementById('task-form-modal');
       modal.classList.remove('active');
       this.currentEditingTask = null;
     }
 
-    // New: Handle task creation/update API calls
     async handleTaskFormSubmit() {
         const form = document.getElementById('task-form');
         const title = document.getElementById('title').value.trim();
@@ -278,7 +241,6 @@ class Task {
         try {
             let response;
             if (this.currentEditingTask) {
-                // Update existing task
                 response = await fetch(`${this.apiUrl}/tasks/${this.currentEditingTask.id}`, {
                     method: 'PUT',
                     headers: {
@@ -288,7 +250,6 @@ class Task {
                     body: JSON.stringify({ ...taskData, completed: this.currentEditingTask.completed }),
                 });
             } else {
-                // Add new task
                 response = await fetch(`${this.apiUrl}/tasks`, {
                     method: 'POST',
                     headers: {
@@ -300,7 +261,7 @@ class Task {
             }
 
             if (response.ok) {
-                await this.fetchTasks(); // Re-fetch all tasks to ensure consistency
+                await this.fetchTasks();
                 this.closeTaskForm();
             } else if (response.status === 401 || response.status === 403) {
                 this.auth.logout();
@@ -314,20 +275,16 @@ class Task {
         }
     }
 
-    // Render tasks list (mostly same, but now uses this.tasks from backend)
     renderTasks() {
       const tasksContainer = document.getElementById('tasks-container');
       const emptyState = document.getElementById('empty-state');
 
       if (!tasksContainer) {
-        console.error('Tasks container not found');
         return;
       }
 
-      // Clear container first
       tasksContainer.innerHTML = '';
 
-      // Filter tasks based on current filter and search term
       const filteredTasks = this.tasks
         .filter(task => {
           if (this.currentFilter === 'active') return !task.completed;
@@ -339,27 +296,23 @@ class Task {
           return (
             task.title.toLowerCase().includes(this.searchTerm) ||
             task.description.toLowerCase().includes(this.searchTerm) ||
-            task.category.toLowerCase().includes(this.searchTerm) || // Added category search
+            (task.category && task.category.toLowerCase().includes(this.searchTerm)) ||
             task.priority.toLowerCase().includes(this.searchTerm)
           );
         })
         .sort((a, b) => {
-          // Parse dates correctly, handling missing time
           const dateA = new Date(a.dueDate + (a.dueTime ? `T${a.dueTime}` : ''));
           const dateB = new Date(b.dueDate + (b.dueTime ? `T${b.dueTime}` : ''));
 
-          // Fallback if date parsing fails (e.g., invalid date format)
           const timeA = isNaN(dateA.getTime()) ? 0 : dateA.getTime();
           const timeB = isNaN(dateB.getTime()) ? 0 : dateB.getTime();
 
           if (timeA !== timeB) return timeA - timeB;
 
-          // If due dates are same, sort by priority
           const priorityOrder = { 'High': 0, 'Medium': 1, 'Low': 2 };
           return priorityOrder[a.priority] - priorityOrder[b.priority];
         });
 
-      // Show empty state if no tasks
       if (filteredTasks.length === 0) {
         tasksContainer.innerHTML = `
           <div class="empty-state">
@@ -367,7 +320,6 @@ class Task {
           </div>
         `;
       } else {
-        // if emptyState div exists, make sure it's hidden (handle if its not found also)
         const currentEmptyState = tasksContainer.querySelector('.empty-state');
         if(currentEmptyState) currentEmptyState.style.display = 'none';
 
@@ -378,11 +330,10 @@ class Task {
       }
     }
 
-    // Create task element (no changes here for data, only rendering)
     createTaskElement(task) {
       const taskElement = document.createElement('div');
       taskElement.className = `task-card ${task.completed ? 'task-completed' : ''}`;
-      taskElement.setAttribute('data-task-id', task.id); // Use MongoDB _id as data-task-id
+      taskElement.setAttribute('data-task-id', task.id);
 
       const formattedDate = this.formatDate(task.dueDate);
 
@@ -438,10 +389,9 @@ class Task {
         </div>
       `;
 
-      // Add event listeners
       const checkbox = taskElement.querySelector('.task-checkbox');
       checkbox.addEventListener('change', () => {
-        this.toggleTaskCompletion(task.id, task.completed); // Pass current completion status
+        this.toggleTaskCompletion(task.id, task.completed);
       });
 
       const editButton = taskElement.querySelector('.task-action-button.edit');
@@ -458,7 +408,6 @@ class Task {
       return taskElement;
     }
 
-    // New: Toggle task completion status via API
     async toggleTaskCompletion(taskId, currentStatus) {
       try {
           const response = await fetch(`${this.apiUrl}/tasks/${taskId}`, {
@@ -473,9 +422,9 @@ class Task {
           if (response.ok) {
               const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
               if (taskElement) {
-                this.animateTaskCompletion(taskElement); // Apply animation immediately for UX
+                this.animateTaskCompletion(taskElement);
               }
-              await this.fetchTasks(); // Re-fetch to sync
+              await this.fetchTasks();
           } else if (response.status === 401 || response.status === 403) {
               this.auth.logout();
           } else {
@@ -488,7 +437,6 @@ class Task {
       }
     }
 
-    // New: Delete task via API
     async deleteTask(taskId) {
       if (confirm('Are you sure you want to delete this task?')) {
           try {
@@ -500,9 +448,9 @@ class Task {
               if (response.ok) {
                   const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
                   if (taskElement) {
-                    this.animateTaskDeletion(taskElement); // Animate deletion locally
+                    this.animateTaskDeletion(taskElement);
                   }
-                  await this.fetchTasks(); // Re-fetch tasks after animation
+                  await this.fetchTasks();
               } else if (response.status === 401 || response.status === 403) {
                   this.auth.logout();
               } else {
@@ -516,19 +464,14 @@ class Task {
       }
     }
 
-    // Update UI after task changes
     updateUI() {
-      // Re-render tasks
       this.renderTasks();
 
-      // Update calendar if needed
       this.renderCalendar();
 
-      // Update suggestions
       this.generateSuggestions();
     }
 
-    // Render calendar view (no significant changes here regarding data)
     renderCalendar() {
       const calendarTitle = document.getElementById('calendar-title');
       const calendarGrid = document.getElementById('calendar-grid');
@@ -543,7 +486,7 @@ class Task {
       const totalDaysInMonth = lastDay.getDate();
 
       const numWeeks = Math.ceil((startDay + totalDaysInMonth) / 7);
-      const totalCells = numWeeks * 7; // Ensure we always have complete weeks for the grid
+      const totalCells = numWeeks * 7;
 
       const prevMonthLastDay = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth(), 0).getDate();
 
@@ -553,18 +496,15 @@ class Task {
         let dateForPopulatingTasks;
 
         if (i < startDay) {
-          // Days from previous month
           displayDay = prevMonthLastDay - startDay + i + 1;
           dateForPopulatingTasks = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() - 1, displayDay);
           dayElement.className = 'calendar-day other-month';
         } else if (i < startDay + totalDaysInMonth) {
-          // Days in current month
           displayDay = i - startDay + 1;
           dateForPopulatingTasks = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth(), displayDay);
           const isToday = this.isToday(dateForPopulatingTasks);
           dayElement.className = `calendar-day ${isToday ? 'today' : ''}`;
         } else {
-          // Days from next month
           displayDay = i - (startDay + totalDaysInMonth) + 1;
           dateForPopulatingTasks = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + 1, displayDay);
           dayElement.className = 'calendar-day other-month';
@@ -579,34 +519,28 @@ class Task {
       }
     }
 
-    // Populate calendar day with tasks (no significant changes here)
     populateCalendarDayTasks(dayElement, date) {
       const tasksContainer = dayElement.querySelector('.calendar-day-tasks');
       const dateString = this.formatDateForInput(date);
 
-      // Get tasks for this day
       const dayTasks = this.tasks.filter(task => task.dueDate === dateString);
 
-      // Sort tasks by priority and then by time
       dayTasks.sort((a, b) => {
         const priorityOrder = { 'High': 0, 'Medium': 1, 'Low': 2 };
         if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
           return priorityOrder[a.priority] - priorityOrder[b.priority];
         }
-        // If priority is the same, sort by time (earlier first)
-        const timeA = a.dueTime ? parseInt(a.dueTime.replace(':', ''), 10) : 9999; // Use a high number for tasks without time to sort them last
+        const timeA = a.dueTime ? parseInt(a.dueTime.replace(':', ''), 10) : 9999;
         const timeB = b.dueTime ? parseInt(b.dueTime.replace(':', ''), 10) : 9999;
         return timeA - timeB;
       });
 
-      // Display up to 3 tasks
       const displayTasks = dayTasks.slice(0, 3);
       displayTasks.forEach(task => {
         const taskElement = document.createElement('div');
         taskElement.className = `calendar-task ${task.completed ? 'completed' : ''}`;
         taskElement.textContent = task.title;
 
-        // Add click event to edit task
         taskElement.addEventListener('click', () => {
           this.openTaskForm(task);
         });
@@ -614,7 +548,6 @@ class Task {
         tasksContainer.appendChild(taskElement);
       });
 
-      // Show "more" indicator if there are more tasks
       if (dayTasks.length > 3) {
         const moreElement = document.createElement('div');
         moreElement.className = 'calendar-more';
@@ -623,11 +556,9 @@ class Task {
       }
     }
 
-    // Generate AI suggestions (client-side as before)
     generateSuggestions() {
       const suggestionsContainer = document.getElementById('suggestions-container');
 
-      // Task templates for AI suggestions
       const taskTemplates = [
         {
           title: "Weekly planning session",
@@ -695,23 +626,18 @@ class Task {
         }
       ];
 
-      // Clear container
       suggestionsContainer.innerHTML = '';
 
-      // Get existing task titles (case-insensitive for better filtering)
       const existingTitles = new Set(this.tasks.map(task => task.title.toLowerCase()));
 
-      // Filter out templates that match existing tasks
       const availableTemplates = taskTemplates.filter(
         template => !existingTitles.has(template.title.toLowerCase())
       );
 
-      // Randomly select 3 templates
       const selectedTemplates = [...availableTemplates]
         .sort(() => 0.5 - Math.random())
         .slice(0, 3);
 
-      // Create suggestion elements
       const now = new Date();
 
       selectedTemplates.forEach(template => {
@@ -740,7 +666,6 @@ class Task {
           </div>
         `;
 
-        // Add click event to add suggestion
         const addButton = suggestionElement.querySelector('.suggestion-add');
         addButton.addEventListener('click', () => {
           this.addSuggestion(template);
@@ -750,7 +675,6 @@ class Task {
       });
     }
 
-    // Add suggestion as a task via API call
     async addSuggestion(template) {
       const now = new Date();
       const dueDate = this.formatDateForInput(this.addDays(now, template.daysOffset));
@@ -775,7 +699,7 @@ class Task {
         });
 
         if (response.ok) {
-            await this.fetchTasks(); // Re-fetch to update UI
+            await this.fetchTasks();
         } else if (response.status === 401 || response.status === 403) {
             this.auth.logout();
         } else {
@@ -788,14 +712,12 @@ class Task {
       }
     }
 
-    // Helper: Format date for display
     formatDate(dateString) {
       const date = new Date(dateString);
       const options = { month: 'short', day: 'numeric', year: 'numeric' };
       return date.toLocaleDateString('en-US', options);
     }
 
-    // Helper: Format date for input field (YYYY-MM-DD)
     formatDateForInput(date) {
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -803,13 +725,11 @@ class Task {
       return `${year}-${month}-${day}`;
     }
 
-    // Helper: Format month and year
     formatMonthYear(date) {
       const options = { month: 'long', year: 'numeric' };
       return date.toLocaleDateString('en-US', options);
     }
 
-    // Helper: Check if date is today
     isToday(date) {
       const today = new Date();
       return (
@@ -819,42 +739,31 @@ class Task {
       );
     }
 
-    // Helper: Add days to date
     addDays(date, days) {
       const result = new Date(date);
       result.setDate(result.getDate() + days);
       return result;
     }
 
-    // Helper: Escape HTML to prevent XSS
     escapeHtml(text) {
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
     }
 
-    // Animate task completion (visually, backend update is done in toggleTaskCompletion)
     animateTaskCompletion(taskElement) {
-      taskElement.classList.add('task-completed-animation'); // Add a class for specific animation
-      // The class `task-completed` is managed by `renderTasks` based on fetched data
+      taskElement.classList.add('task-completed-animation');
       setTimeout(() => {
         taskElement.classList.remove('task-completed-animation');
-        // task completion status updated and rendered in fetchTasks()
       }, 500);
     }
 
-    // Animate task deletion (visually, backend update is done in deleteTask)
     animateTaskDeletion(taskElement) {
       taskElement.style.animation = 'slideOut 0.3s var(--animation-timing)';
-      // Backend handles actual removal, then fetchTasks updates the DOM correctly.
-      // Small delay here to allow the visual animation to complete before re-render might remove it.
       setTimeout(() => {
-        // This element might already be gone if fetchTasks() rerendered
-        // taskElement.remove();
       }, 300);
     }
 
-    // Animate task addition
     animateTaskAddition(taskElement) {
       taskElement.style.opacity = '0';
       taskElement.style.transform = 'translateY(20px)';
@@ -866,26 +775,6 @@ class Task {
     }
   }
 
-  // Initialize the application when DOM is loaded
   document.addEventListener('DOMContentLoaded', () => {
-    // This part runs after auth.js ensures authentication is checked
     window.taskScheduler = new TaskScheduler();
-
-    // The logout button listener is now primarily handled in auth.js directly
-    // and removed from here to prevent redundancy.
-    // If you need direct access for specific script.js behaviors on logout, keep it.
   });
-
-  // Updated CSS to include the new animation class
-  /* In styles.css, add this: */
-  /*
-  @keyframes completeTaskAnimation {
-      0% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.02); opacity: 0.7; }
-      100% { transform: scale(1); opacity: 1; }
-  }
-
-  .task-card.task-completed-animation {
-      animation: completeTaskAnimation 0.5s var(--animation-timing);
-  }
-  */

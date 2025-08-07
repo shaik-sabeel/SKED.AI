@@ -27,7 +27,6 @@
     --animation-timing: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Base styles */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -41,7 +40,6 @@ body {
     line-height: 1.5;
 }
 
-/* Auth Pages */
 .auth-container {
     min-height: 100vh;
     display: flex;
@@ -179,7 +177,6 @@ body {
     border: 1px solid var(--error);
 }
 
-/* Responsive Design */
 @media (max-width: 480px) {
     .auth-card {
         padding: 1.5rem;
@@ -194,7 +191,6 @@ body {
     }
 }
 
-/* AI Features */
 .ai-suggestion {
     background: linear-gradient(135deg, var(--surface) 0%, var(--background) 100%);
     border: 1px solid var(--border);
@@ -224,7 +220,6 @@ body {
     font-size: 0.875rem;
 }
 
-/* Layout */
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -251,7 +246,6 @@ body {
     }
 }
 
-/* Cards */
 .card {
     background-color: var(--background);
     border-radius: var(--radius);
@@ -284,7 +278,6 @@ body {
     padding: 1rem;
 }
 
-/* Tabs */
 .tabs {
     background-color: var(--background);
     border-radius: var(--radius);
@@ -335,7 +328,6 @@ body {
     display: block;
 }
 
-/* Buttons */
 .button {
     display: inline-flex;
     align-items: center;
@@ -388,7 +380,6 @@ body {
     color: var(--text);
 }
 
-/* Task List */
 .task-filters {
     display: flex;
     flex-direction: column;
@@ -634,7 +625,6 @@ body {
     color: var(--text-secondary);
 }
 
-/* Calendar View */
 .calendar-header {
     display: flex;
     justify-content: space-between;
@@ -735,7 +725,6 @@ body {
     padding: 0 0.25rem;
 }
 
-/* Suggestions */
 .suggestion-description {
     font-size: 0.875rem;
     color: var(--text-secondary);
@@ -805,7 +794,6 @@ body {
     height: 0.75rem;
 }
 
-/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -885,7 +873,6 @@ body {
     color: var(--text);
 }
 
-/* Form */
 form {
     padding: 1rem;
 }
@@ -995,7 +982,6 @@ input[type="radio"]:checked::after {
     margin-top: 1.5rem;
 }
 
-/* Report Section Styles */
 .report-section {
     background-color: var(--surface);
     border-radius: var(--radius);
@@ -1152,13 +1138,12 @@ input[type="radio"]:checked::after {
     color: var(--priority-high-text);
 }
 
-/* NEW: Chart container styles */
 .report-charts {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Adjust minmax as needed */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
-    justify-items: center; /* Center charts in grid cells */
+    justify-items: center;
 }
 
 .chart-container {
@@ -1167,7 +1152,7 @@ input[type="radio"]:checked::after {
     border-radius: var(--radius);
     border: 1px solid var(--border);
     width: 100%;
-    max-width: 400px; /* Cap width for better chart appearance */
+    max-width: 400px;
 }
 
 .chart-container h3 {
@@ -1176,9 +1161,7 @@ input[type="radio"]:checked::after {
     margin-bottom: 1rem;
     color: var(--text);
 }
-/* END NEW CHART STYLES */
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .report-filters {
         flex-direction: column;
@@ -1195,11 +1178,10 @@ input[type="radio"]:checked::after {
     }
 
     .report-charts {
-        grid-template-columns: 1fr; /* Stack charts vertically on small screens */
+        grid-template-columns: 1fr;
     }
 }
 
-/* Logout Button Styles */
 .logout-container {
     position: fixed;
     top: 20px;
@@ -1237,13 +1219,11 @@ input[type="radio"]:checked::after {
     transform: translateX(-2px);
 }
 
-/* Animation Variables */
 :root {
     --animation-duration: 0.3s;
     --animation-timing: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Task Card Animations */
 .task-card {
     animation: slideIn 0.5s var(--animation-timing);
     transition: transform 0.3s var(--animation-timing), box-shadow 0.3s var(--animation-timing);
@@ -1265,7 +1245,6 @@ input[type="radio"]:checked::after {
     }
 }
 
-/* Button Animations */
 .button, .report-button, .filter-button, .tab-button {
     transition: all 0.3s var(--animation-timing);
     position: relative;
@@ -1280,7 +1259,6 @@ input[type="radio"]:checked::after {
     transform: translateY(0);
 }
 
-/* Modal Animations */
 .modal {
     animation: fadeIn 0.3s var(--animation-timing);
 }
@@ -1309,7 +1287,6 @@ input[type="radio"]:checked::after {
     }
 }
 
-/* Calendar Animations */
 .calendar-day {
     transition: all 0.3s var(--animation-timing);
 }
@@ -1319,17 +1296,16 @@ input[type="radio"]:checked::after {
     z-index: 1;
 }
 
-/* Suggestion Card Animations */
 .suggestion-card {
     animation: fadeIn 0.5s var(--animation-timing);
     transition: transform 0.3s var(--animation-timing);
 }
 
 .suggestion-card:hover {
+    background-color: var(--secondary);
     transform: translateX(5px);
 }
 
-/* Report Section Animations */
 .report-section {
     animation: fadeIn 0.5s var(--animation-timing);
 }
@@ -1342,7 +1318,6 @@ input[type="radio"]:checked::after {
     transform: scale(1.05);
 }
 
-/* Loading Animation */
 @keyframes pulse {
     0% {
         transform: scale(1);
@@ -1359,7 +1334,6 @@ input[type="radio"]:checked::after {
     animation: pulse 1.5s infinite;
 }
 
-/* Ripple Effect */
 .ripple {
     position: relative;
     overflow: hidden;
@@ -1388,19 +1362,16 @@ input[type="radio"]:checked::after {
     transition: 0s;
 }
 
-/* Add ripple effect to buttons */
 .button, .report-button, .filter-button, .tab-button {
     position: relative;
     overflow: hidden;
 }
 
-/* Smooth Scroll */
 html {
     scroll-behavior: smooth;
 }
 
-/* Task Completion Animation */
-.task-completed-animation { /* Renamed to avoid conflict with task-completed for display */
+.task-completed-animation {
     animation: completeTaskAnimation 0.5s var(--animation-timing);
 }
 
@@ -1419,7 +1390,6 @@ html {
     }
 }
 
-/* Responsive Animations */
 @media (max-width: 768px) {
     .task-card, .suggestion-card, .stat-card {
         animation: none;
@@ -1437,7 +1407,6 @@ html {
     padding: 1rem;
 }
 
-/* User Info & Logo Styles */
 .user-info {
     font-size: 0.9rem;
     color: var(--text-secondary);
@@ -1468,24 +1437,24 @@ html {
 }
 
 .logo-dot {
-    color: var(--primary); /* A distinct color for the dot */
-    font-size: 1.2em; /* Make the dot slightly larger */
+    color: var(--primary);
+    font-size: 1.2em;
     line-height: 1;
-    margin-top: -0.1em; /* Adjust vertical alignment */
+    margin-top: -0.1em;
 }
 
 .logo-ai {
-    font-size: 0.6em; /* Smaller font for 'AI' */
+    font-size: 0.6em;
     color: var(--text-secondary);
-    align-self: flex-end; /* Align 'AI' to the bottom of the main text */
-    margin-left: 0.2em; /* Space from the dot */
+    align-self: flex-end;
+    margin-left: 0.2em;
     font-weight: 500;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    transform: translateY(-0.1em); /* Fine tune vertical position */
+    transform: translateY(-0.1em);
     transition: color 0.3s ease;
 }
 
 .logo:hover .logo-ai {
-    color: var(--primary-hover); /* A subtle hover effect */
+    color: var(--primary-hover);
 }

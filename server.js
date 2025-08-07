@@ -10,19 +10,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from the 'public' directory
 const publicPath = path.join(__dirname, 'public');
 console.log('Serving static files from:', publicPath);
 app.use(express.static(publicPath));
 
-// MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/skedai_db';
 
 mongoose.connect(MONGODB_URI)
     .then(() => console.log('MongoDB connected'))
     .catch(err => console.error('MongoDB connection error:', err));
 
-// Define User Schema and Model
 const UserSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
@@ -38,7 +35,6 @@ UserSchema.pre('save', async function(next) {
 
 const User = mongoose.model('User', UserSchema);
 
-// Define Task Schema and Model
 const TaskSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     title: { type: String, required: true },
@@ -48,27 +44,24 @@ const TaskSchema = new mongoose.Schema({
     priority: { type: String, enum: ['Low', 'Medium', 'High'], default: 'Medium' },
     category: { type: String },
     completed: { type: Boolean, default: false },
-    completedAt: { type: Date, default: null }, // NEW: Timestamp for when task was completed
+    completedAt: { type: Date, default: null },
     createdAt: { type: Date, default: Date.now },
 });
 
-// Update logic to set completedAt when completed status changes
 TaskSchema.pre('findOneAndUpdate', function(next) {
     const update = this.getUpdate();
     if (update.completed === true && !update.completedAt) {
         update.completedAt = new Date();
     } else if (update.completed === false) {
-        update.completedAt = null; // Clear if marked incomplete
+        update.completedAt = null;
     }
     next();
 });
 
 const Task = mongoose.model('Task', TaskSchema);
 
-// JWT secret
-const JWT_SECRET = process.env.JWT_SECRET || 'a_very_secret_key_for_jwt_prod_dev'; // CHANGE THIS IN .env
+const JWT_SECRET = process.env.JWT_SECRET || 'a_very_secret_key_for_jwt_prod_dev';
 
-// Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -87,7 +80,6 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// --- AUTH ROUTES ---
 app.post('/api/auth/signup', async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -146,9 +138,6 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
-// --- TASK ROUTES (PROTECTED) ---
-
-// Get all tasks for an authenticated user
 app.get('/api/tasks', authenticateToken, async (req, res) => {
     try {
         const tasks = await Task.find({ userId: req.user.id }).sort({ createdAt: -1 });
@@ -159,7 +148,6 @@ app.get('/api/tasks', authenticateToken, async (req, res) => {
     }
 });
 
-// Create a new task
 app.post('/api/tasks', authenticateToken, async (req, res) => {
     try {
         const { title, description, dueDate, dueTime, priority, category } = req.body;
@@ -177,7 +165,6 @@ app.post('/api/tasks', authenticateToken, async (req, res) => {
             priority,
             category,
             completed: false,
-            // completedAt defaults to null
         });
 
         await newTask.save();
@@ -188,7 +175,6 @@ app.post('/api/tasks', authenticateToken, async (req, res) => {
     }
 });
 
-// Update a task
 app.put('/api/tasks/:id', authenticateToken, async (req, res) => {
     try {
         const taskId = req.params.id;
@@ -196,12 +182,9 @@ app.put('/api/tasks/:id', authenticateToken, async (req, res) => {
 
         const updateFields = { title, description, dueDate, dueTime, priority, category, completed };
 
-        // Handle completedAt timestamp in the pre-findOneAndUpdate hook,
-        // just pass the 'completed' status to trigger it.
-
         const updatedTask = await Task.findOneAndUpdate(
             { _id: taskId, userId: req.user.id },
-            updateFields, // Let the pre-save hook handle completedAt
+            updateFields,
             { new: true, runValidators: true }
         );
 
@@ -216,7 +199,6 @@ app.put('/api/tasks/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// Delete a task
 app.delete('/api/tasks/:id', authenticateToken, async (req, res) => {
     try {
         const taskId = req.params.id;
@@ -234,11 +216,9 @@ app.delete('/api/tasks/:id', authenticateToken, async (req, res) => {
     }
 });
 
-
-// NEW: Analytics endpoint for reporting
 app.get('/api/analytics/tasks', authenticateToken, async (req, res) => {
     try {
-        const { startDate, endDate } = req.query; // Expect YYYY-MM-DD format
+        const { startDate, endDate } = req.query;
 
         if (!startDate || !endDate) {
             return res.status(400).json({ message: 'Start date and end date are required for analytics.' });
@@ -251,8 +231,8 @@ app.get('/api/analytics/tasks', authenticateToken, async (req, res) => {
 
         const tasksInPeriod = await Task.find({
             userId: req.user.id,
-            dueDate: { // Using dueDate for filtering tasks within period for the report, can switch to createdAt
-                $gte: startOfDay.toISOString().split('T')[0], // Comparing string dates
+            dueDate: {
+                $gte: startOfDay.toISOString().split('T')[0],
                 $lte: endOfDay.toISOString().split('T')[0]
             }
         });
@@ -262,14 +242,12 @@ app.get('/api/analytics/tasks', authenticateToken, async (req, res) => {
         const pendingTasks = totalTasks - completedTasks;
         const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
-        // Group by category
         const categoryBreakdown = tasksInPeriod.reduce((acc, task) => {
             const category = task.category || 'Uncategorized';
             acc[category] = (acc[category] || 0) + 1;
             return acc;
         }, {});
 
-        // Group completed tasks by completion date (e.g., daily trend)
         const completionTrend = {};
         tasksInPeriod.forEach(task => {
             if (task.completed && task.completedAt) {
@@ -277,6 +255,11 @@ app.get('/api/analytics/tasks', authenticateToken, async (req, res) => {
                 completionTrend[completionDate] = (completionTrend[completionDate] || 0) + 1;
             }
         });
+
+        const priorityBreakdown = tasksInPeriod.reduce((acc, task) => {
+            acc[task.priority] = (acc[task.priority] || 0) + 1;
+            return acc;
+        }, { 'High': 0, 'Medium': 0, 'Low': 0 });
 
 
         res.json({
@@ -286,7 +269,8 @@ app.get('/api/analytics/tasks', authenticateToken, async (req, res) => {
             completionRate,
             categoryBreakdown,
             completionTrend,
-            tasksInPeriod: tasksInPeriod // Returning for PDF detail view
+            priorityBreakdown, // Added for chart
+            tasksInPeriod: tasksInPeriod
         });
 
     } catch (error) {
@@ -295,12 +279,9 @@ app.get('/api/analytics/tasks', authenticateToken, async (req, res) => {
     }
 });
 
-
-// Handle all other routes by sending the login.html file
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
