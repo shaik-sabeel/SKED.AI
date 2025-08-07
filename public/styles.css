@@ -1152,6 +1152,32 @@ input[type="radio"]:checked::after {
     color: var(--priority-high-text);
 }
 
+/* NEW: Chart container styles */
+.report-charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Adjust minmax as needed */
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    justify-items: center; /* Center charts in grid cells */
+}
+
+.chart-container {
+    background-color: var(--surface);
+    padding: 1rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    width: 100%;
+    max-width: 400px; /* Cap width for better chart appearance */
+}
+
+.chart-container h3 {
+    text-align: center;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    color: var(--text);
+}
+/* END NEW CHART STYLES */
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .report-filters {
@@ -1166,6 +1192,10 @@ input[type="radio"]:checked::after {
 
     .report-stats {
         grid-template-columns: 1fr;
+    }
+
+    .report-charts {
+        grid-template-columns: 1fr; /* Stack charts vertically on small screens */
     }
 }
 
@@ -1370,19 +1400,22 @@ html {
 }
 
 /* Task Completion Animation */
-.task-completed {
-    animation: completeTask 0.5s var(--animation-timing);
+.task-completed-animation { /* Renamed to avoid conflict with task-completed for display */
+    animation: completeTaskAnimation 0.5s var(--animation-timing);
 }
 
-@keyframes completeTask {
+@keyframes completeTaskAnimation {
     0% {
         transform: scale(1);
+        opacity: 1;
     }
     50% {
-        transform: scale(1.05);
+        transform: scale(1.02);
+        opacity: 0.7;
     }
     100% {
         transform: scale(1);
+        opacity: 1;
     }
 }
 
@@ -1398,24 +1431,13 @@ html {
     }
 }
 
-/* Add this new block at the end of styles.css */
-@keyframes completeTaskAnimation {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.02); opacity: 0.7; } /* Slight pulse/fade effect */
-    100% { transform: scale(1); opacity: 1; }
-}
-
-.task-card.task-completed-animation {
-    animation: completeTaskAnimation 0.5s var(--animation-timing);
-}
-
 .empty-report {
     text-align: center;
     color: var(--text-secondary);
     padding: 1rem;
 }
 
-/* Also add the .user-info to global CSS if not already defined for the username span */
+/* User Info & Logo Styles */
 .user-info {
     font-size: 0.9rem;
     color: var(--text-secondary);
@@ -1423,7 +1445,6 @@ html {
     text-align: right;
 }
 
-/* The logo styles were not included in your provided styles.css, adding them to match your index.html */
 .logo-container {
     position: fixed;
     top: 20px;
